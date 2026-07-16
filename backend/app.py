@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,19 +7,31 @@ from routers.screener import router as screener_router
 from routers.company import router as company_router
 from routers.news import router as news_router
 
+from services.scheduler_service import start_scheduler
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Starting Stock Scheduler...")
+    start_scheduler()
+    yield
+    print("Shutting down...")
+
+
 app = FastAPI(
     title="Stock Analysis API",
     description="Nifty 500 Stock Screener API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-    "http://localhost:5173",
-    "https://stock-analysis-blue.vercel.app",
-],
+        "http://localhost:5173",
+        "https://stock-analysis-blue.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

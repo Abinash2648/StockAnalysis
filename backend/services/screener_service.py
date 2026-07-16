@@ -5,9 +5,9 @@ Business logic for Nifty 500 Stock Screener.
 """
 
 import pandas as pd
+from services.cache_service import cache    
 
 from services.yahoo_service import (
-    load_all_data,
     company_lookup,
     sector_lookup,
 )
@@ -36,8 +36,11 @@ def screen_stocks(min_score=0) -> pd.DataFrame:
     Run stock screener and return results.
     """
 
-    stocks = load_all_data()
+    stocks = cache.get()
 
+    if not stocks:
+     print("Stock cache is empty.")
+     return pd.DataFrame()
     results = []
 
     print("\nApplying Screening Conditions...\n")
