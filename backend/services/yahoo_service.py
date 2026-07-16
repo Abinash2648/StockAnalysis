@@ -1,13 +1,11 @@
 """
 services/yahoo_service.py
 
-Handles downloading historical stock data
-from Yahoo Finance.
+Downloads historical stock data from Yahoo Finance
+using a SINGLE request for all symbols.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
-
 import pandas as pd
 import yfinance as yf
 
@@ -17,16 +15,11 @@ from Config import (
     SYMBOL_FILE,
 )
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def load_symbols() -> list[str]:
-    """
-    Load stock symbols from CSV.
-    """
-
     df = pd.read_csv(SYMBOL_FILE)
 
     return (
@@ -38,98 +31,86 @@ def load_symbols() -> list[str]:
     )
 
 
-def download_stock(symbol: str) -> tuple[str, pd.DataFrame | None]:
-    """
-    Download one stock from Yahoo Finance.
-    """
-
-    yahoo_symbol = f"{symbol}.NS"
-
-    try:
-
-        df = yf.download(
-            yahoo_symbol,
-            period=LOOKBACK_PERIOD,
-            interval=INTERVAL,
-            auto_adjust=False,
-            progress=False,
-            threads=False,
-        )
-
-        if df.empty:
-            return symbol, None
-
-        # Remove MultiIndex if present
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-
-        df.reset_index(inplace=True)
-
-        required_columns = [
-            "Date",
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Adj Close",
-            "Volume",
-        ]
-
-        df = df[required_columns]
-
-        price_columns = [
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Adj Close",
-        ]
-
-        df[price_columns] = df[price_columns].round(2)
-
-        df["Volume"] = df["Volume"].astype("int64")
-
-        return symbol, df
-
-    except Exception as e:
-
-        logger.error(f"{symbol} : {e}")
-
-        return symbol, None
-
-
-def load_all_data(max_workers: int = 10):
+def load_all_data():
 
     symbols = load_symbols()
 
+    yahoo_symbols = [f"{symbol}.NS" for symbol in symbols]
+
     logger.info(f"Downloading {len(symbols)} stocks...")
+
+    try:
+
+        data = yf.download(
+            tickers=yahoo_symbols,
+            period=LOOKBACK_PERIOD,
+            interval=INTERVAL,
+            group_by="ticker",
+            auto_adjust=False,
+            threads=False,
+            progress=False,
+        )
+
+    except Exception as e:
+        logger.error(e)
+        return {}
+
     stock_data = {}
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    for symbol in symbols:
 
-        futures = {
-            executor.submit(download_stock, symbol): symbol
-            for symbol in symbols
-        }
+        yahoo_symbol = f"{symbol}.NS"
 
-        for future in as_completed(futures):
+        try:
 
-            symbol, df = future.result()
+            if yahoo_symbol not in data.columns.levels[0]:
+                continue
 
-            if df is not None:
-                stock_data[symbol] = df
+            df = data[yahoo_symbol].copy()
+
+            if df.empty:
+                continue
+
+            df.reset_index(inplace=True)
+
+            required_columns = [
+                "Date",
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Adj Close",
+                "Volume",
+            ]
+
+            df = df[required_columns]
+
+            price_columns = [
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Adj Close",
+            ]
+
+            df[price_columns] = df[price_columns].round(2)
+            df["Volume"] = df["Volume"].fillna(0).astype("int64")
+
+            stock_data[symbol] = df
+
+        except Exception as e:
+            logger.warning(f"{symbol}: {e}")
 
     logger.info(f"Downloaded {len(stock_data)} stocks.")
 
     return stock_data
+
+
 # ==========================================================
 # Company Metadata
 # ==========================================================
 
 def load_metadata():
-    """
-    Load company metadata from Nifty 500 CSV.
-    """
 
     df = pd.read_csv(SYMBOL_FILE)
 
@@ -140,10 +121,6 @@ def load_metadata():
         .fillna("Unknown")
     )
 
-
-# ==========================================================
-# Lookup Dictionaries
-# ==========================================================
 
 _metadata = load_metadata()
 
