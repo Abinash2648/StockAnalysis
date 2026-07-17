@@ -9,7 +9,7 @@ from threading import Lock
 
 
 class CompanyCache:
-    def __init__(self, ttl=1800):
+    def __init__(self, ttl=43200):
         self.ttl = ttl
         self.cache = {}
         self.lock = Lock()
@@ -41,4 +41,4 @@ class CompanyCache:
             self.cache.clear()
 
 
-company_cache = CompanyCache(ttl=1800)
+company_cache = CompanyCache(ttl=43200)  # 12 hours

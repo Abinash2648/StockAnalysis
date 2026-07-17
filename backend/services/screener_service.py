@@ -234,6 +234,50 @@ def screen_stocks(min_score=0) -> pd.DataFrame:
     ].reset_index(drop=True)
 
     return results
+# ==========================================================
+# Live Stock Data (Company Details)
+# ==========================================================
+
+def get_live_stock_data(symbol: str):
+    """
+    Returns live technical data for a single stock.
+    Uses the existing stock cache.
+    Does NOT affect screen_stocks().
+    """
+
+    symbol = symbol.upper()
+
+    stocks = cache.get()
+
+    if not stocks:
+        return {}
+
+    if symbol not in stocks:
+        return {}
+
+    df = stocks[symbol].copy()
+
+    if len(df) < 252:
+        return {}
+
+    df = calculate_indicators(df)
+
+    latest = df.iloc[-1]
+
+    return {
+
+        "currentPrice": round(latest["Close"], 2),
+
+        "fiftyTwoWeekHigh": round(latest["Previous_52W_High"], 2),
+
+        "fiftyTwoWeekLow": round(latest["52W_Low"], 2),
+
+        "SMA50": round(latest["SMA50"], 2),
+
+        "SMA150": round(latest["SMA150"], 2),
+
+        "EMA220": round(latest["EMA220"], 2),
+    }
 
 # ==========================================================
 # Test
