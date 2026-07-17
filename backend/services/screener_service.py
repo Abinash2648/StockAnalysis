@@ -3,6 +3,7 @@ services/screener_service.py
 
 Business logic for Nifty 500 Stock Screener.
 """
+import logging
 
 import pandas as pd
 from services.cache_service import cache    
@@ -13,6 +14,7 @@ from services.yahoo_service import (
 )
 from services.indicator_service import calculate_indicators
 from Config import LOW_MULTIPLIER
+logger = logging.getLogger(__name__)
 
 
 # ==========================================================
@@ -43,7 +45,7 @@ def screen_stocks(min_score=0) -> pd.DataFrame:
      return pd.DataFrame()
     results = []
 
-    print("\nApplying Screening Conditions...\n")
+    logger.info("Applying Screening Conditions...")
 
     # ------------------------------------------------------
     # Process each stock

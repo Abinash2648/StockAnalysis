@@ -1,8 +1,11 @@
+import logging
+
 from fastapi import APIRouter
 import pandas as pd
 import numpy as np
 
 from services.screener_service import screen_stocks
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/screener",
@@ -12,6 +15,7 @@ router = APIRouter(
 
 @router.get("/")
 def get_screener(min_score: int = 0):
+    logger.info("GET /api/screener called")
 
     results = screen_stocks(min_score)
 
