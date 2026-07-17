@@ -2,6 +2,7 @@
 services/scheduler_service.py
 """
 import logging
+from datetime import datetime, timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -24,18 +25,27 @@ def refresh_stock_cache():
 
 def start_scheduler():
 
-    # Initial download
-    refresh_stock_cache()
+    # Schedule the first download 5 seconds after startup
+    scheduler.add_job(
+        refresh_stock_cache,
+        trigger="date",
+        run_date=datetime.now() + timedelta(seconds=5),
+        id="initial_refresh",
+        replace_existing=True,
+    )
 
     # Refresh every 3 hours
     scheduler.add_job(
-    refresh_stock_cache,
-    trigger="interval",
-    hours=3,
-    id="stock_refresh",
-    replace_existing=True,
-    max_instances=1,
-    coalesce=True,
-    misfire_grace_time=300,
-)
+        refresh_stock_cache,
+        trigger="interval",
+        hours=3,
+        id="stock_refresh",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=300,
+    )
+
     scheduler.start()
+
+    logger.info("Scheduler started.")
