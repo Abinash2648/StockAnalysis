@@ -5,6 +5,18 @@ A modern **Full-Stack Stock Analysis Dashboard** that screens **Nifty 500** stoc
 Built with **React**, **Material UI**, **FastAPI**, **Python**, **Pandas**, **Yahoo Finance**, and **Recharts**.
 
 ---
+## ✨ Project Highlights
+
+- Full Stack Application
+- FastAPI REST APIs
+- React + Material UI Dashboard
+- Nifty 500 Technical Screener
+- Company Profile Dashboard
+- Scheduler-based Stock Refresh
+- Hybrid RAM + JSON Cache
+- CSV & PDF Export
+- Responsive Design
+- Deployed on Vercel & Render
 
 ## 🚀 Features
 
@@ -16,6 +28,12 @@ Built with **React**, **Material UI**, **FastAPI**, **Python**, **Pandas**, **Ya
 - Sector Filter
 - Responsive Data Table
 - Interactive Stock Details
+- Company Profile Dashboard
+- Real-time Company Fundamentals
+- Company Statistics & Financial Ratios
+- Automatic Background Stock Cache Refresh
+- Intelligent RAM + JSON Company Profile Caching
+- Automatic Yahoo Finance Fallback Handling
 
 ### ⭐ Watchlist
 - Add / Remove stocks
@@ -99,10 +117,13 @@ Maximum Score:
 - NumPy
 - Yahoo Finance (yfinance)
 - BeautifulSoup
+- APScheduler
 
 ## Storage
 
 - LocalStorage
+- In-Memory Cache
+- JSON Cache
 - CSV Metadata (Nifty 500)
 
 ---
@@ -144,6 +165,15 @@ git clone https://github.com/Abinash2648/StockAnalysis.git
 
 cd StockAnalysis
 ```
+# 🌐 Live Demo
+
+### Frontend (Vercel)
+
+https://stock-analysis-blue.vercel.app
+
+### Backend (Render)
+
+https://stockanalysis-j2cu.onrender.com
 
 ---
 
@@ -164,7 +194,7 @@ uvicorn app:app --reload
 Backend runs at:
 
 ```
-http://127.0.0.1:8000
+https://stockanalysis-j2cu.onrender.com
 ```
 
 ---
@@ -182,7 +212,7 @@ npm run dev
 Frontend runs at:
 
 ```
-http://localhost:5173
+https://stock-analysis-blue.vercel.app
 ```
 
 ---
@@ -235,30 +265,73 @@ screenshots/Compare_stocks2.png
 
 # 🔮 Future Enhancements
 
-- Live Stock Price Updates
 - User Authentication
-- Portfolio Performance Charts
+- Cloud Database Integration
+- Portfolio Performance Analytics
 - AI-based Stock Recommendations
 - News Sentiment Analysis
-- Historical Portfolio Analytics
-- Cloud Database Integration
+- Email Alerts
+- Live WebSocket Stock Updates
 
 ---
 
 # 📌 Notes
 
-- Sector metadata is loaded from the official Nifty 500 constituent dataset.
-- Historical stock data is fetched from Yahoo Finance.
+- Screens Nifty 500 stocks using technical indicators.
+- Historical market data is fetched from Yahoo Finance.
+- Company profiles use hybrid RAM + JSON caching.
+- Automatic scheduler refreshes stock data.
 - Portfolio and Watchlist are stored locally using LocalStorage.
-- Designed with a responsive UI for desktop and tablet devices.
+- Fully responsive React dashboard.
 
 ---
+# ⚡ Caching Strategy
+
+The application uses a hybrid caching architecture to reduce Yahoo Finance requests and improve performance.
+
+Request Flow
+
+RAM Cache
+↓
+
+JSON Cache
+↓
+
+Yahoo Finance
+↓
+
+Success
+↓
+
+Update RAM Cache
+↓
+
+Update JSON Cache
+↓
+
+Return Latest Data
+
+If Yahoo Finance is unavailable or rate-limited, the application automatically serves cached company profile data from RAM/JSON, ensuring uninterrupted access.
+
+# ☁️ Deployment
+
+Frontend:
+- Vercel
+
+Backend:
+- Render
+
+Data Source:
+- Yahoo Finance
+
+Automatic Scheduler:
+- Refreshes stock cache periodically
 
 # 👨‍💻 Author
 
 **Abinash Mishra**
 
-Java Full Stack Developer | Python Developer | React Developer
+Java Full Stack Developer | Python Full Stack Developer
 
 **GitHub**
 
