@@ -4,7 +4,10 @@ services/company_service.py
 Fetch company fundamentals from Yahoo Finance.
 """
 
+import traceback
+
 import yfinance as yf
+from fastapi import HTTPException
 
 
 def get_company_details(symbol: str):
@@ -15,7 +18,13 @@ def get_company_details(symbol: str):
     try:
         ticker = yf.Ticker(f"{symbol}.NS")
 
+        print(f"\nFetching company details for: {symbol}")
+
         info = ticker.info
+
+        # Debug: Print the complete Yahoo response
+        print("Yahoo Response:")
+        print(info)
 
         return {
             "symbol": symbol,
@@ -75,6 +84,11 @@ def get_company_details(symbol: str):
 
     except Exception as e:
 
-        print(e)
+        print("\n========== YAHOO FINANCE ERROR ==========")
+        traceback.print_exc()
+        print("=========================================\n")
 
-        return {}
+        raise HTTPException(
+            status_code=503,
+            detail=str(e),
+        )

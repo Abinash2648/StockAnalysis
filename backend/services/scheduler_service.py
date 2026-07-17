@@ -1,23 +1,25 @@
 """
 services/scheduler_service.py
 """
+import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from services.yahoo_service import load_all_data
 from services.cache_service import cache
+logger = logging.getLogger(__name__)
 
 scheduler = BackgroundScheduler()
 
 
 def refresh_stock_cache():
-    print("\nDownloading latest stock data...")
+    logger.info("Downloading latest stock data...")
 
     new_data = load_all_data()
 
     cache.set(new_data)
 
-    print(f"Stock cache updated ({len(new_data)} stocks).")
+    logger.info(f"Stock cache updated ({len(new_data)} stocks).")
 
 
 def start_scheduler():
